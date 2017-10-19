@@ -2,12 +2,17 @@ package com.tongtong.pvzhmpro.layer;
 
 import org.cocos2d.actions.instant.CCCallFunc;
 import org.cocos2d.actions.instant.CCHide;
+import org.cocos2d.actions.interval.CCAnimate;
 import org.cocos2d.actions.interval.CCDelayTime;
 import org.cocos2d.actions.interval.CCSequence;
 import org.cocos2d.layers.CCLayer;
+import org.cocos2d.nodes.CCAnimation;
 import org.cocos2d.nodes.CCDirector;
 import org.cocos2d.nodes.CCSprite;
+import org.cocos2d.nodes.CCSpriteFrame;
 import org.cocos2d.types.CGSize;
+
+import java.util.ArrayList;
 
 /**
  * 欢迎页面图层
@@ -49,7 +54,9 @@ public class WelcomeLayer extends CCLayer {
         logo.runAction(ccSequence);
     }
 
-    //当动作执行完了之后调用
+    /**
+     * 当动作执行完了之后调用
+     */
     public void loadWelcome() {
         //创建背景精灵
         CCSprite bg = CCSprite.sprite("image/welcome.jpg");
@@ -57,5 +64,32 @@ public class WelcomeLayer extends CCLayer {
         bg.setAnchorPoint(0, 0);
         //添加到图层
         this.addChild(bg);
+        //添加加载中图片精灵
+        loading();
+    }
+
+    /**
+     * 加载中
+     */
+    private void loading() {
+        //新建加载中第一张图片精灵
+        CCSprite loading = CCSprite.sprite("image/loading/loading_01.png");
+        //设置图片位置
+        loading.setPosition(winSize.width / 2, 30);
+        //添加至图层
+        this.addChild(loading);
+        /*播放序列帧*/
+        ArrayList<CCSpriteFrame> frames = new ArrayList<>();
+        String format = "image/loading/loading_%02d.png";
+        for (int i = 1; i <= 9; i++) {
+            CCSpriteFrame ccSpriteFrame = CCSprite.sprite(String.format(format, i)).displayedFrame();
+            frames.add(ccSpriteFrame);
+        }
+        //创建action所需要的anim
+        CCAnimation anim = CCAnimation.animation("", 0.2f, frames);
+        //创建动作，第二个参数为false表示不需要循环播放
+        CCAnimate action = CCAnimate.action(anim, false);
+        //运行动作
+        loading.runAction(action);
     }
 }
