@@ -7,21 +7,15 @@ import android.view.MotionEvent;
 import com.tongtong.pvzhmpro.base.BaseLayer;
 import com.tongtong.pvzhmpro.utils.CommonUtil;
 
+import org.cocos2d.actions.base.CCAction;
 import org.cocos2d.actions.instant.CCCallFunc;
 import org.cocos2d.actions.instant.CCHide;
-import org.cocos2d.actions.interval.CCAnimate;
 import org.cocos2d.actions.interval.CCDelayTime;
 import org.cocos2d.actions.interval.CCSequence;
-import org.cocos2d.layers.CCLayer;
-import org.cocos2d.nodes.CCAnimation;
 import org.cocos2d.nodes.CCDirector;
 import org.cocos2d.nodes.CCSprite;
-import org.cocos2d.nodes.CCSpriteFrame;
 import org.cocos2d.types.CGPoint;
 import org.cocos2d.types.CGRect;
-import org.cocos2d.types.CGSize;
-
-import java.util.ArrayList;
 
 /**
  * 欢迎页面图层
@@ -109,18 +103,9 @@ public class WelcomeLayer extends BaseLayer {
         //添加至图层
         this.addChild(loading);
         /*播放序列帧*/
-        ArrayList<CCSpriteFrame> frames = new ArrayList<>();
-        String format = "image/loading/loading_%02d.png";
-        for (int i = 1; i <= 9; i++) {
-            CCSpriteFrame ccSpriteFrame = CCSprite.sprite(String.format(format, i)).displayedFrame();
-            frames.add(ccSpriteFrame);
-        }
-        //创建action所需要的anim
-        CCAnimation anim = CCAnimation.animation("", 0.2f, frames);
-        //创建动作，第二个参数为false表示不需要循环播放
-        CCAnimate action = CCAnimate.action(anim, false);
+        CCAction animate = CommonUtil.getAnimate("image/loading/loading_%02d.png", 9, false);
         //运行动作
-        loading.runAction(action);
+        loading.runAction(animate);
         /*添加加载完成之后的图片精灵*/
         start = CCSprite.sprite("image/loading/loading_start.png");
         //设置位置
