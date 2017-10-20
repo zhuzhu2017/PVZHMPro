@@ -3,6 +3,7 @@ package com.tongtong.pvzhmpro.layer;
 import android.util.Log;
 
 import com.tongtong.pvzhmpro.base.BaseLayer;
+import com.tongtong.pvzhmpro.utils.CommonUtil;
 
 import org.cocos2d.menus.CCMenu;
 import org.cocos2d.menus.CCMenuItem;
@@ -50,7 +51,8 @@ public class MenuLayer extends BaseLayer {
      * @param o
      */
     public void onClick(Object o) {
-        Log.d("点击", "我被点击了...");
+       /*点击跳转的新的图层*/
+        CommonUtil.changeLayer(new FightLayer());
     }
 
 }
