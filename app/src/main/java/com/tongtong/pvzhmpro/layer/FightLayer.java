@@ -4,10 +4,12 @@ import com.tongtong.pvzhmpro.base.BaseLayer;
 import com.tongtong.pvzhmpro.bean.ShowZombies;
 import com.tongtong.pvzhmpro.utils.CommonUtil;
 
+import org.cocos2d.actions.instant.CCCallFunc;
 import org.cocos2d.actions.interval.CCDelayTime;
 import org.cocos2d.actions.interval.CCMoveBy;
 import org.cocos2d.actions.interval.CCSequence;
 import org.cocos2d.layers.CCTMXTiledMap;
+import org.cocos2d.nodes.CCSprite;
 import org.cocos2d.types.CGPoint;
 import org.cocos2d.types.CGSize;
 
@@ -73,8 +75,25 @@ public class FightLayer extends BaseLayer {
     private void moveMap() {
         int x = (int) (winSize.width - map.getContentSize().width);
         CCMoveBy ccMoveBy = CCMoveBy.action(2, ccp(x, 0));
-        CCSequence ccSequence = CCSequence.actions(CCDelayTime.action(4), ccMoveBy);
+        CCSequence ccSequence = CCSequence.actions(CCDelayTime.action(3), ccMoveBy, CCDelayTime.action(2), CCCallFunc.action(this, "loadContainer"));
         map.runAction(ccSequence);
+    }
+
+    /**
+     * 加载两个容器
+     */
+    public void loadContainer() {
+        //创建两个精灵
+        CCSprite upSprite = CCSprite.sprite("image/fight/chose/fight_chose.png");
+        //设置锚点
+        upSprite.setAnchorPoint(0, 1);   //左上角
+        //设置位置
+        upSprite.setPosition(0, winSize.height);
+        this.addChild(upSprite);
+        CCSprite downSprite = CCSprite.sprite("image/fight/chose/fight_choose.png");
+        //设置锚点
+        downSprite.setAnchorPoint(0, 0);
+        this.addChild(downSprite);
     }
 
 }
