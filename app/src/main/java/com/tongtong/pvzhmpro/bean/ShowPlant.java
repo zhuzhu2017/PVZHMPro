@@ -47,6 +47,6 @@ public class ShowPlant {
         showSprite.setAnchorPoint(0, 0);
         bgSprite = CCSprite.sprite(path);
         bgSprite.setAnchorPoint(0, 0);
-        bgSprite.setOpacity(155);
+        bgSprite.setOpacity(150);   //设置半透明
     }
 }

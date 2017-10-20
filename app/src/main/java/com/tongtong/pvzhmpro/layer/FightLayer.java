@@ -1,5 +1,7 @@
 package com.tongtong.pvzhmpro.layer;
 
+import android.view.MotionEvent;
+
 import com.tongtong.pvzhmpro.base.BaseLayer;
 import com.tongtong.pvzhmpro.bean.ShowPlant;
 import com.tongtong.pvzhmpro.bean.ShowZombies;
@@ -8,12 +10,15 @@ import com.tongtong.pvzhmpro.utils.CommonUtil;
 import org.cocos2d.actions.instant.CCCallFunc;
 import org.cocos2d.actions.interval.CCDelayTime;
 import org.cocos2d.actions.interval.CCMoveBy;
+import org.cocos2d.actions.interval.CCMoveTo;
 import org.cocos2d.actions.interval.CCSequence;
 import org.cocos2d.layers.CCTMXTiledMap;
 import org.cocos2d.nodes.CCSprite;
 import org.cocos2d.types.CGPoint;
+import org.cocos2d.types.CGRect;
 import org.cocos2d.types.CGSize;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -102,6 +107,8 @@ public class FightLayer extends BaseLayer {
         loadShowPlant();
     }
 
+    private List<ShowPlant> showPlants = new ArrayList<>(); //展示植物用的集合
+
     /**
      * 添加植物到可选区域
      */
@@ -117,7 +124,45 @@ public class FightLayer extends BaseLayer {
             CCSprite showSprite = showPlant.getShowSprite();
             showSprite.setPosition(20 + ((i - 1) % 4) * 54, 175 - ((i - 1) / 4) * 59);
             downSprite.addChild(showSprite);
+            //添加至集合
+            showPlants.add(showPlant);
         }
+        //开启点击事件
+        setIsTouchEnabled(true);
+    }
+
+    private List<ShowPlant> selectPlants = new ArrayList<>();   //选中植物的集合
+    boolean isLock; //点击锁
+
+    @Override
+    public boolean ccTouchesBegan(MotionEvent event) {
+        //坐标转换
+        CGPoint cgPoint = this.convertTouchToNodeSpace(event);
+        CGRect boundingBox = downSprite.getBoundingBox();
+        if (CGRect.containsPoint(boundingBox, cgPoint)) {  //点击的点落在可选植物容器中
+            if (selectPlants.size() < 5 && !isLock) {
+                //可能选择植物
+                for (ShowPlant plant : showPlants) {
+                    CCSprite showSprite = plant.getShowSprite();
+                    CGRect box = showSprite.getBoundingBox();
+                    if (CGRect.containsPoint(box, cgPoint)) {  //表示选中了对应的植物
+                        isLock = true;
+                        CCMoveTo ccMoveTo = CCMoveTo.action(1, ccp(75 + 53 * selectPlants.size(), 255));
+                        CCSequence sequence = CCSequence.actions(ccMoveTo, CCCallFunc.action(this, "unlock"));
+                        plant.getShowSprite().runAction(sequence);
+                        selectPlants.add(plant);
+                    }
+                }
+            }
+        }
+        return super.ccTouchesBegan(event);
+    }
+
+    /**
+     * 点击解锁
+     */
+    public void unlock() {
+        isLock = false;
     }
 
 }
