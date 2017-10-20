@@ -20,6 +20,7 @@ import org.cocos2d.types.CGSize;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 对战页面
@@ -131,7 +132,7 @@ public class FightLayer extends BaseLayer {
         setIsTouchEnabled(true);
     }
 
-    private List<ShowPlant> selectPlants = new ArrayList<>();   //选中植物的集合
+    private List<ShowPlant> selectPlants = new CopyOnWriteArrayList<>();   //选中植物的集合
     boolean isLock; //点击锁
 
     @Override
@@ -139,18 +140,33 @@ public class FightLayer extends BaseLayer {
         //坐标转换
         CGPoint cgPoint = this.convertTouchToNodeSpace(event);
         CGRect boundingBox = downSprite.getBoundingBox();
-        if (CGRect.containsPoint(boundingBox, cgPoint)) {  //点击的点落在可选植物容器中
-            if (selectPlants.size() < 5 && !isLock) {
-                //可能选择植物
-                for (ShowPlant plant : showPlants) {
-                    CCSprite showSprite = plant.getShowSprite();
-                    CGRect box = showSprite.getBoundingBox();
-                    if (CGRect.containsPoint(box, cgPoint)) {  //表示选中了对应的植物
-                        isLock = true;
-                        CCMoveTo ccMoveTo = CCMoveTo.action(1, ccp(75 + 53 * selectPlants.size(), 255));
-                        CCSequence sequence = CCSequence.actions(ccMoveTo, CCCallFunc.action(this, "unlock"));
-                        plant.getShowSprite().runAction(sequence);
-                        selectPlants.add(plant);
+        CGRect upSpriteBoundingBox = upSprite.getBoundingBox();
+        //反选植物
+        if (CGRect.containsPoint(upSpriteBoundingBox, cgPoint)) {
+            for (ShowPlant plant : selectPlants) {
+                CCSprite showSprite = plant.getShowSprite();
+                CGRect box = showSprite.getBoundingBox();
+                if (CGRect.containsPoint(box, cgPoint)) {
+                    //反选植物
+                    CCMoveTo action = CCMoveTo.action(0.5f, plant.getBgSprite().getPosition());
+                    showSprite.runAction(action);
+                    selectPlants.remove(plant);
+                }
+            }
+        } else {
+            if (CGRect.containsPoint(boundingBox, cgPoint)) {  //点击的点落在可选植物容器中
+                if (selectPlants.size() < 5 && !isLock) {
+                    //可能选择植物
+                    for (ShowPlant plant : showPlants) {
+                        CCSprite showSprite = plant.getShowSprite();
+                        CGRect box = showSprite.getBoundingBox();
+                        if (CGRect.containsPoint(box, cgPoint)) {  //表示选中了对应的植物
+                            isLock = true;
+                            CCMoveTo ccMoveTo = CCMoveTo.action(0.5f, ccp(75 + 53 * selectPlants.size(), 255));
+                            CCSequence sequence = CCSequence.actions(ccMoveTo, CCCallFunc.action(this, "unlock"));
+                            plant.getShowSprite().runAction(sequence);
+                            selectPlants.add(plant);
+                        }
                     }
                 }
             }
