@@ -1,6 +1,7 @@
 package com.tongtong.pvzhmpro.layer;
 
 import com.tongtong.pvzhmpro.base.BaseLayer;
+import com.tongtong.pvzhmpro.bean.ShowPlant;
 import com.tongtong.pvzhmpro.bean.ShowZombies;
 import com.tongtong.pvzhmpro.utils.CommonUtil;
 
@@ -79,21 +80,44 @@ public class FightLayer extends BaseLayer {
         map.runAction(ccSequence);
     }
 
+    private CCSprite upSprite;  //玩家选择的植物
+    private CCSprite downSprite;    //玩家可选的植物
+
     /**
      * 加载两个容器
      */
     public void loadContainer() {
         //创建两个精灵
-        CCSprite upSprite = CCSprite.sprite("image/fight/chose/fight_chose.png");
+        upSprite = CCSprite.sprite("image/fight/chose/fight_chose.png");
         //设置锚点
         upSprite.setAnchorPoint(0, 1);   //左上角
         //设置位置
         upSprite.setPosition(0, winSize.height);
         this.addChild(upSprite);
-        CCSprite downSprite = CCSprite.sprite("image/fight/chose/fight_choose.png");
+        downSprite = CCSprite.sprite("image/fight/chose/fight_choose.png");
         //设置锚点
         downSprite.setAnchorPoint(0, 0);
         this.addChild(downSprite);
+        /*添加植物到可选区域*/
+        loadShowPlant();
+    }
+
+    /**
+     * 添加植物到可选区域
+     */
+    private void loadShowPlant() {
+        for (int i = 1; i <= 9; i++) {
+            ShowPlant showPlant = new ShowPlant(i);
+            //添加背景
+            CCSprite bgSprite = showPlant.getBgSprite();
+            //设置位置
+            bgSprite.setPosition(20 + ((i - 1) % 4) * 54, 175 - ((i - 1) / 4) * 59);
+            downSprite.addChild(bgSprite);
+            //添加植物图片
+            CCSprite showSprite = showPlant.getShowSprite();
+            showSprite.setPosition(20 + ((i - 1) % 4) * 54, 175 - ((i - 1) / 4) * 59);
+            downSprite.addChild(showSprite);
+        }
     }
 
 }
