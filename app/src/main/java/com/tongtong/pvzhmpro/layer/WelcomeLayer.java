@@ -1,5 +1,12 @@
 package com.tongtong.pvzhmpro.layer;
 
+import android.os.AsyncTask;
+import android.os.SystemClock;
+import android.view.MotionEvent;
+
+import com.tongtong.pvzhmpro.base.BaseLayer;
+import com.tongtong.pvzhmpro.utils.CommonUtil;
+
 import org.cocos2d.actions.instant.CCCallFunc;
 import org.cocos2d.actions.instant.CCHide;
 import org.cocos2d.actions.interval.CCAnimate;
@@ -10,6 +17,8 @@ import org.cocos2d.nodes.CCAnimation;
 import org.cocos2d.nodes.CCDirector;
 import org.cocos2d.nodes.CCSprite;
 import org.cocos2d.nodes.CCSpriteFrame;
+import org.cocos2d.types.CGPoint;
+import org.cocos2d.types.CGRect;
 import org.cocos2d.types.CGSize;
 
 import java.util.ArrayList;
@@ -19,12 +28,33 @@ import java.util.ArrayList;
  * Created by allen on 2017/10/19.
  */
 
-public class WelcomeLayer extends CCLayer {
+public class WelcomeLayer extends BaseLayer {
 
-    private CGSize winSize; //屏幕尺寸
+    private CCSprite start; //启动图片精灵
 
     /*构造函数*/
     public WelcomeLayer() {
+        //模拟一个异步耗时动作
+        new AsyncTask<Void, Void, Void>() {
+            //在子线程中执行
+            @Override
+            protected Void doInBackground(Void... voids) {
+                //模拟后台耗时动作
+                SystemClock.sleep(6000);
+                return null;
+            }
+
+            //在子线程之后执行的代码
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                if (start != null) {
+                    start.setVisible(true);
+                }
+                //打开触摸事件
+                setIsTouchEnabled(true);
+            }
+        }.execute();
         init();
     }
 
@@ -91,5 +121,27 @@ public class WelcomeLayer extends CCLayer {
         CCAnimate action = CCAnimate.action(anim, false);
         //运行动作
         loading.runAction(action);
+        /*添加加载完成之后的图片精灵*/
+        start = CCSprite.sprite("image/loading/loading_start.png");
+        //设置位置
+        start.setPosition(winSize.width / 2, 30);
+        //默认不显示
+        start.setVisible(false);
+        //添加到图层
+        this.addChild(start);
+    }
+
+    @Override
+    public boolean ccTouchesBegan(MotionEvent event) {
+        //将Android坐标系中的点转换成cocos2d坐标系中的点
+        CGPoint cgPoint = this.convertTouchToNodeSpace(event);
+        //获取开始图片所在的矩形
+        CGRect boundingBox = start.getBoundingBox();
+        if (CGRect.containsPoint(boundingBox, cgPoint)) {  //包含
+            /*处理点击事件*/
+            //点击后打开新的场景
+            CommonUtil.changeLayer(new MenuLayer());
+        }
+        return super.ccTouchesBegan(event);
     }
 }
