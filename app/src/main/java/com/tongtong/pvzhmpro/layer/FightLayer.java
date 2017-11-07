@@ -33,6 +33,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class FightLayer extends BaseLayer {
 
+    public static final int TAG_CHOSE = 10;
+
     private CCTMXTiledMap map;
     private List<CGPoint> zombiesPoints;
 
@@ -104,7 +106,7 @@ public class FightLayer extends BaseLayer {
         upSprite.setAnchorPoint(0, 1);   //左上角
         //设置位置
         upSprite.setPosition(0, winSize.height);
-        this.addChild(upSprite);
+        this.addChild(upSprite, 0, TAG_CHOSE);
         downSprite = CCSprite.sprite("image/fight/chose/fight_choose.png");
         //设置锚点
         downSprite.setAnchorPoint(0, 0);
@@ -150,6 +152,11 @@ public class FightLayer extends BaseLayer {
     public boolean ccTouchesBegan(MotionEvent event) {
         //坐标转换
         CGPoint cgPoint = this.convertTouchToNodeSpace(event);
+        //如果游戏开始，交给游戏控制器处理触摸事件
+        if (GameController.isStart) {
+            GameController.getInstance().handTouch(cgPoint);
+            return super.ccTouchesBegan(event);
+        }
         CGRect boundingBox = downSprite.getBoundingBox();
         CGRect upSpriteBoundingBox = upSprite.getBoundingBox();
         //反选植物
@@ -245,7 +252,7 @@ public class FightLayer extends BaseLayer {
     public void startGame() {
         ready.removeSelf();
         GameController controller = GameController.getInstance();
-        controller.startGame(map,selectPlants);
+        controller.startGame(map, selectPlants);
     }
 
     /**

@@ -37,10 +37,17 @@ public class ShowPlant {
         return bgSprite;
     }
 
+    private int id;
+
+    public int getId() {
+        return id;
+    }
+
     /**
      * 显示植物
      */
     public ShowPlant(int id) {
+        this.id = id;
         HashMap<String, String> plant = db.get(id);
         String path = plant.get("path");
         showSprite = CCSprite.sprite(path);
