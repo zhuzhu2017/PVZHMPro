@@ -8,10 +8,12 @@ import com.tongtong.pvzhmpro.sprite.PeasePlant;
 import com.tongtong.pvzhmpro.sprite.PrimaryZombies;
 import com.tongtong.pvzhmpro.utils.CommonUtil;
 
+import org.cocos2d.actions.CCProgressTimer;
 import org.cocos2d.actions.CCScheduler;
 import org.cocos2d.layers.CCTMXTiledMap;
 import org.cocos2d.nodes.CCDirector;
 import org.cocos2d.nodes.CCNode;
+import org.cocos2d.nodes.CCSprite;
 import org.cocos2d.types.CGPoint;
 import org.cocos2d.types.CGRect;
 
@@ -75,6 +77,30 @@ public class GameController {
         //安放植物
         //僵尸攻击植物
         //植物攻击僵尸
+        progress();
+    }
+
+    CCProgressTimer progressTimer;
+    int  progress=0;
+    private void progress() {
+        // 创建了进度条
+        progressTimer = CCProgressTimer.progressWithFile("image/fight/progress.png");
+        // 设置进度条的位置
+        progressTimer.setPosition(CCDirector.sharedDirector().getWinSize().width - 80, 13);
+        map.getParent().addChild(progressTimer); //图层添加了进度条
+        progressTimer.setScale(0.6f);  //  设置了缩放
+
+        progressTimer.setPercentage(0);// 每增加一个僵尸需要调整进度，增加5
+        progressTimer.setType(CCProgressTimer.kCCProgressTimerTypeHorizontalBarRL);  // 进度的样式
+
+        CCSprite sprite = CCSprite.sprite("image/fight/flagmeter.png");
+        sprite.setPosition(CCDirector.sharedDirector().getWinSize().width - 80, 13);
+        map.getParent().addChild(sprite);
+        sprite.setScale(0.6f);
+        CCSprite name = CCSprite.sprite("image/fight/FlagMeterLevelProgress.png");
+        name.setPosition(CCDirector.sharedDirector().getWinSize().width - 80, 5);
+        map.getParent().addChild(name);
+        name.setScale(0.6f);
     }
 
     //存放植物安放点
@@ -101,6 +127,8 @@ public class GameController {
                 roadPoints.get(lineNum * 2 + 1));
         map.addChild(zombies);
         lines.get(lineNum).addZombies(zombies);
+        progress+=5;
+        progressTimer.setPercentage(progress);//设置新的进度
     }
 
     public void stopGame() {

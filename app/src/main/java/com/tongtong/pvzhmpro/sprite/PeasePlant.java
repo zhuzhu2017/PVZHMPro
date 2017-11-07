@@ -19,12 +19,19 @@ public class PeasePlant extends AttackPlant {
 
     @Override
     public Bullet createBullet() {
-        //每次只能发射一发子弹
-        if (bullets.size() < 1) {   //之前没有创建子弹
-            Pease pease = new Pease();
-            pease.setPosition(CCNode.ccp(this.getPosition().x + 50, this.getPosition().y + 50));
+        if(bullets.size()<1){// 证明之前没有创建子弹
+            final Pease pease=new Pease();
+            pease.setPosition(CCNode.ccp(this.getPosition().x+20, this.getPosition().y+40));
             this.getParent().addChild(pease);
+            pease.setDieListener(new DieListener() {
+
+                @Override
+                public void die() {
+                    bullets.remove(pease);
+                }
+            });
             bullets.add(pease);
+            pease.move();
         }
         return null;
     }

@@ -2,8 +2,12 @@ package com.tongtong.pvzhmpro.engine;
 
 import com.tongtong.pvzhmpro.base.AttackPlant;
 import com.tongtong.pvzhmpro.base.BaseElement;
+import com.tongtong.pvzhmpro.base.Bullet;
 import com.tongtong.pvzhmpro.base.Plant;
 import com.tongtong.pvzhmpro.base.Zombies;
+
+import org.cocos2d.actions.CCScheduler;
+import org.cocos2d.types.CGPoint;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,13 +26,71 @@ public class FightLine {
 
     public FightLine(int lineNum) {
         this.lineNum = lineNum;
+        CCScheduler.sharedScheduler()
+                .schedule("attackPlant", this, 0.2f, false);
+        CCScheduler.sharedScheduler().schedule("createBullet", this, 0.2f,
+                false);
+        CCScheduler.sharedScheduler().schedule("attackZombies", this, 0.1f,
+                false);
     }
+
+
+    // 判断子弹和僵尸是否产生了碰撞
+    public void attackZombies(float t) {
+        if (zombiesList.size() > 0 && attackPlants.size() > 0) {
+            for (Zombies zombies : zombiesList) {
+                float x = zombies.getPosition().x;
+                float left = x - 20;
+                float right = x + 20;
+                for (AttackPlant attackPlant : attackPlants) {
+                    List<Bullet> bullets = attackPlant.getBullets();
+                    for (Bullet bullet : bullets) {
+                        float bulletX = bullet.getPosition().x;
+                        if (bulletX > left && bulletX < right) {
+                            //产生了碰撞
+                            zombies.attacked(bullet.getAttack());// 僵尸被攻击, 参数 攻击力
+                            bullet.setVisible(false);
+                            bullet.setAttack(0);
+                        }
+                    }
+                }
+
+            }
+
+        }
+
+    }
+
+    public void createBullet(float t) {
+        if (zombiesList.size() > 0 && attackPlants.size() > 0) {
+            // 创建子弹
+            for (AttackPlant attackPlant : attackPlants) {
+                attackPlant.createBullet();// 遍历所有攻击类型植物 创建子弹
+            }
+        }
+    }
+
+    // 需要一直判断
+    public void attackPlant(float t) {
+        if (zombiesList.size() > 0 && plants.size() > 0) { // 保证当前行上既有僵尸又有植物
+            for (Zombies zombies : zombiesList) {
+                CGPoint position = zombies.getPosition();
+                int row = (int) (position.x / 46 - 1); // 获取到僵尸所在的列
+                Plant plant = plants.get(row);
+                if (plant != null) {
+                    zombies.attack(plant);
+                }
+            }
+        }
+    }
+
 
     //记录当前行上所有的僵尸
     private List<Zombies> zombiesList = new ArrayList<>();
     private Map<Integer, Plant> plants = new HashMap<>();// 管理添加的植物
     // key当前植物所对应的列号
     private List<AttackPlant> attackPlants = new ArrayList<>();
+
     /**
      * 添加一个僵尸
      *
