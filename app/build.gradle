@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 apply plugin: 'com.android.application'
 
 android {
@@ -17,6 +19,19 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    applicationVariants.all() { variant ->
+        variant.outputs.each {  output ->
+            def file = output.outputFile
+            output.outputFile = new File(file.parent,
+            "pvzhmpro_android_app-"+defaultConfig.versionName+"-"+buildTime()+".apk")
+        }
+    }
+}
+
+static def buildTime(){
+    def df = new SimpleDateFormat("yyyyMMddHHmmss")
+    df.setTimeZone(TimeZone.getDefault())
+    return df.format(new Date())
 }
 
 dependencies {
